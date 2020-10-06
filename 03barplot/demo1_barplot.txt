@@ -1,0 +1,7 @@
+Annotation	cluster_1	cluster_2	cluster_3	cluster_4	cluster_5
+Naive B cells	8	96	875	2071	2392
+Mature B cells class switched	7	51	337	1187	1590
+Mature B cells class able to switch	2	22	280	856	1079
+Mature B cells	1	12	131	294	353
+Pro B cells	457	196	1044	689	256
+Early B cells	33	204	106	108	37
