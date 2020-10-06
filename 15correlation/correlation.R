@@ -1,0 +1,113 @@
+# 15. 相关性图绘制
+
+# 清除当前环境中的变量
+rm(list=ls())
+
+# 设置工作目录
+setwd("C:/Users/Dell/Desktop/R_Plots/15correlation/")
+
+# 使用corrgram包绘制相关性图
+library(corrgram)
+
+# 查看数据集
+head(iris)
+
+corrgram(iris)
+
+corrgram(iris, 
+         lower.panel=panel.pts, #设置底部panel绘图类型
+         upper.panel=panel.conf, #设置顶部panel绘图类型
+         diag.panel=panel.density, #设置对角线panel绘图类型
+         main = "Iris data pearson correlation" #设置标题
+         )
+
+corrgram(iris, 
+         lower.panel=panel.shade, 
+         upper.panel=panel.pie,
+         diag.panel=panel.density,
+         cor.method = "spearman", #设置相关性计算方法
+         gap = 2, #设置图形panel之间的间隔
+         col.regions=colorRampPalette(c("green", "blue","red"))
+         )
+
+# 使用corrplot包绘制相关性图
+library(corrplot)
+
+# 查看数据集
+head(mtcars)
+
+# 计算相关性
+M <- cor(mtcars,method = "pearson")
+head(M)
+
+corrplot(M)
+
+corrplot(M,
+         method = "number", #设置相关性图展示类型
+         type = "lower", #设置只展示底部panel
+         bg = "white", #设置背景色
+         title = "mtcars data correlation", #设置标题
+         )
+
+corrplot(M,
+         method = "pie", #设置相关性图展示类型
+         type = "upper", #设置只展示底部panel
+         order = "AOE", #设置排序的方式
+         cl.ratio = .2, #设置colorlabel的宽度
+         title = "mtcars data pearson correlation", #设置标题
+)
+
+# 使用ggcorrplot包绘制相关性图
+library(ggcorrplot)
+
+# 查看数据集
+head(mtcars)
+
+# 计算相关性
+M <- cor(mtcars,method = "spearman")
+head(M)
+
+ggcorrplot(M)
+
+ggcorrplot(M,
+           method = "circle", #设置相关性图展示类型
+           outline.color = "red",#设置相关性图边框的颜色
+           type = "upper", #设置只展示定部panel
+           title = "mtcars data spearman correlation" #设置标题
+           )
+
+ggcorrplot(M,
+           method = "square", #设置相关性图展示类型
+           show.legend = T, #设置是否展示图例
+           legend.title = "Corr", #设置图例的标题
+           colors = c("#6D9EC1", "white", "#E46726"), #设置相关性图的颜色
+           ggtheme = ggplot2::theme_gray, #设置背景
+           lab = T, #设置是否显示显关系数
+           hc.order = T #设置排序
+           )
+
+# 使用GGally包绘制相关性图
+library(GGally)
+
+# 查看数据集
+head(mtcars)
+
+# 计算相关性
+M <- cor(mtcars,method = "kendall")
+head(M)
+
+# 使用ggcorr函数绘制相关性图
+ggcorr(M)
+
+c("#FF6A6A", "#FFFFFF", "#FFFFFF")ggcorr(M,
+       label = T, #设置是否显示相关系数
+       geom = "circle", #设置相关性图展示类型
+       max_size = 10, #设置circles size的最大值
+       min_size = 4, #设置circles size的最小值
+       size = 4, #设置对角线字体大小
+       angle = 45, #设置对角线字体倾斜角度
+       low = "green",
+       mid = "blue",
+       high = "red"
+       )
+
