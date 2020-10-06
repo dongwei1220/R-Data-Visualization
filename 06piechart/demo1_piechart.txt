@@ -1,0 +1,6 @@
+group	value
+E	10
+D	30
+C	20
+B	10
+A	10
