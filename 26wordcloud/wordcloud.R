@@ -1,0 +1,110 @@
+# 26. 词云图绘制
+
+# 清除当前环境中的变量
+rm(list=ls())
+
+# 设置工作目录
+setwd("C:/Users/Dell/Desktop/R_Plots/26wordcloud/")
+
+# 使用wordcloud2包绘制词云图
+# 安装并加载所需R包
+#install.packages("wordcloud2")
+library(wordcloud2)
+
+# 查看示例数据
+# 第一列为词语名，第二列为词频数
+head(demoFreq)
+
+# 使用wordcloud2函数绘制词云图
+# 默认绘图
+wordcloud2(demoFreq)
+
+# 设置字体大小和宽度
+wordcloud2(demoFreq, size = 2, fontWeight = "bold")
+
+# shape参数设置词云展现图形
+wordcloud2(demoFreq, size = 1,shape = 'star')
+
+# 设置字体颜色和背景色
+wordcloud2(demoFreq, size = 1.5,
+           color = "random-light", 
+           backgroundColor = "grey")
+
+# 设置字体旋转的角度和旋转比例，所有字体旋转45°，一半字体旋转
+wordcloud2(demoFreq, size = 2, 
+           minRotation = -pi/4, maxRotation = -pi/4,
+           rotateRatio = 0.5)
+
+# 根据指定条件(词频大小)设置字体颜色
+wordcloud2(demoFreq, size = 1.5,
+           color = ifelse(demoFreq[, 2] > 20, 'red', 'skyblue'))
+
+# 自定义词云展现图形
+figPath = system.file("examples/t.png",package = "wordcloud2")
+wordcloud2(demoFreq, figPath = figPath, 
+           size = 1.5,color = "skyblue")
+
+# 使用letterCloud函数绘制词云图
+# word参数指定词云的形状
+letterCloud(demoFreq, word = "R")
+
+letterCloud(demoFreq, word = "WORDCLOUD2", wordSize = 1)
+
+# 使用wordcloud2包绘制词云图
+# 安装并加载所需R包
+#install.packages("ggwordcloud")
+library(ggwordcloud)
+
+# 查看内置数据集
+data("love_words_small")
+head(love_words_small)
+
+# 使用geom_text_wordcloud函数绘制词云图
+ggplot(love_words_small, aes(label = word, size = speakers)) +
+  geom_text_wordcloud(color = factor(sample.int(10, nrow(love_words_small), replace = TRUE))) +
+  scale_size_area(max_size = 20) +
+  theme_minimal()
+
+# 使用geom_text_wordcloud_ares函数绘制词云图
+ggplot(love_words_small, aes(label = word, size = speakers, color = speakers)) +
+  geom_text_wordcloud_area(shape = "star") +
+  scale_size_area(max_size = 20) +
+  theme_minimal() +
+  scale_color_gradient(low = "blue",high = "red")
+
+# 使用ggwordcloud函数绘制词云图
+ggwordcloud(words = love_words_small$word, 
+            freq = love_words_small$speakers,
+            min.freq = 3,
+            random.order = T)
+
+# 使用ggwordcloud2函数绘制词云图
+ggwordcloud2(love_words_small[,c("word", "speakers")],
+             color = "random-dark",
+             size = 2,
+             shape = "circle")
+
+# 使用d3wordcloud包绘制词云图
+# 安装并加载所需R包
+#devtools::install_github("jbkunst/d3wordcloud")
+library(d3wordcloud)
+
+# 构建示例数据
+words <- c("I", "love", "this", "package", "but", "I", "don't", "like", "use", "wordclouds")
+freqs <- sample(seq(length(words)))
+head(words)
+head(freqs)
+
+# 使用d3wordcloud函数绘制词云图
+d3wordcloud(words, freqs)
+
+# colors参数设置颜色
+d3wordcloud(words, freqs, colors = "#FFAA00")
+
+# fonts参数设置字体
+d3wordcloud(words, freqs, font = "Erica One", padding = 5)
+
+# 设置字体旋转角度
+d3wordcloud(words, freqs, rotate.min = -45, rotate.max = 45)
+
+sessionInfo()
