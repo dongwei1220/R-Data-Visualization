@@ -1,0 +1,184 @@
+# 29. 聚类树图绘制
+
+# 清除当前环境中的变量
+rm(list=ls())
+
+# 设置工作目录
+setwd("C:/Users/Dell/Desktop/R_Plots/29dendrogram/")
+
+# 使用dendrogram函数绘制聚类树图
+# 查看内置示例数据
+head(USArrests)
+
+# 计算距离矩阵，默认method = "euclidean"计算欧氏距离
+dists <- dist(USArrests,method = "euclidean") 
+head(dists)
+# 进行层次聚类，method = "average"选择UPGMA聚类算法
+hc <- hclust(dists, method = "ave")
+hc
+# 将hclust对象转换为dendrogram对象
+dend1 <- as.dendrogram(hc)
+dend1
+
+# 绘制聚类树图，默认type = "rectangle"
+plot(dend1, type = "rectangle", 
+     ylab="Height",
+     main="Cluster Dendrogram")
+## "triangle" type and show inner nodes:
+plot(dend1, 
+     nodePar = list(pch = c(1,NA), cex = 1.2, lab.cex = 0.9),#设置节点的形状，大小和标签字体大小
+     type = "triangle", center = TRUE)
+plot(dend1, 
+     edgePar = list(col = c("red","blue"), lty = 1:2),#设置节点边的颜色和线型
+     dLeaf = 2, edge.root = TRUE)
+plot(dend1, 
+     nodePar = list(pch = 17:16, cex = 1.2:0.8, col = 2:3),
+     horiz = TRUE)#水平放置聚类树
+
+nP <- list(col = 3:2, cex = c(2.0, 0.8), pch =  21:22,
+           bg =  c("light blue", "pink"),
+           lab.cex = 0.8, lab.col = "tomato")
+plot(dend1, 
+     nodePar= nP, 
+     edgePar = list(col = "gray", lwd = 2), 
+     horiz = TRUE)
+
+# plot dendrogram with some cuts
+dend2 <- cut(dend1, h = 70)
+dend2
+plot(dend2$upper, main = "Upper tree of cut at h=70")
+##  dend2$lower is *NOT* a dendrogram, but a list of .. :
+plot(dend2$lower[[1]], main = "First branch of lower tree with cut at h=70")
+## "inner" and "leaf" edges in different type & color :
+plot(dend2$lower[[2]], 
+     nodePar = list(col = 1),   # non empty list
+     edgePar = list(lty = 1:2, col = 2:1), 
+     edge.root = TRUE)
+plot(dend2$lower[[3]], 
+     nodePar = list(col = 4), 
+     horiz = TRUE, type = "tr")
+
+# 使用ggdendro包绘制聚类树图
+# 安装并加载所需的R包
+#install.packages('ggdendro')
+library(ggdendro)
+library(ggplot2)
+
+# 层次聚类
+hc <- hclust(dist(USArrests), "ave")
+hc
+
+# Demonstrate plotting directly from object class hclust
+# 使用ggdendrogram函数绘制聚类树
+ggdendrogram(hc)
+# 旋转90度
+ggdendrogram(hc, rotate = TRUE)
+
+# demonstrate converting hclust to dendro using dendro_data first
+hcdata <- dendro_data(hc, type = "triangle")
+hcdata
+ggdendrogram(hcdata, rotate = TRUE) + 
+        labs(title = "Dendrogram in ggplot2")
+
+# 使用ggraph包绘制聚类树图
+# 安装并加载所需的R包
+#install.packages("ggraph")
+library(ggraph)
+library(igraph)
+library(tidyverse)
+library(RColorBrewer)
+theme_set(theme_void())
+
+# 构建示例数据
+# data: edge list
+d1 <- data.frame(from="origin", to=paste("group", seq(1,7), sep=""))
+head(d1)
+d2 <- data.frame(from=rep(d1$to, each=7), to=paste("subgroup", seq(1,49), sep="_"))
+head(d2)
+edges <- rbind(d1, d2)
+edges
+
+# We can add a second data frame with information for each node!
+name <- unique(c(as.character(edges$from), as.character(edges$to)))
+vertices <- data.frame(
+        name=name,
+        group=c( rep(NA,8) ,  rep( paste("group", seq(1,7), sep=""), each=7)),
+        cluster=sample(letters[1:4], length(name), replace=T),
+        value=sample(seq(10,30), length(name), replace=T)
+)
+head(vertices)
+
+# Create a graph object
+mygraph <- graph_from_data_frame( edges, vertices=vertices)
+mygraph
+
+# 使用ggraph函数绘制聚类树图
+ggraph(mygraph, layout = 'dendrogram') + 
+        geom_edge_diagonal() 
+# 绘制圆形的聚类树
+ggraph(mygraph, layout = 'dendrogram', circular = TRUE) + 
+        geom_edge_diagonal()
+
+# 添加节点的标签，形状和信息
+ggraph(mygraph, layout = 'dendrogram') + 
+        geom_edge_diagonal() +
+        geom_node_text(aes( label=name, filter=leaf, color=group) , angle=90 , hjust=1, nudge_y=-0.1) +
+        geom_node_point(aes(filter=leaf, size=value, color=group) , alpha=0.6) +
+        ylim(-.6, NA) +
+        theme(legend.position="none")
+
+# 构建测试数据集
+# create a data frame giving the hierarchical structure of your individuals
+d1=data.frame(from="origin", to=paste("group", seq(1,10), sep=""))
+d2=data.frame(from=rep(d1$to, each=10), to=paste("subgroup", seq(1,100), sep="_"))
+edges=rbind(d1, d2)
+
+# create a vertices data.frame. One line per object of our hierarchy
+vertices = data.frame(
+        name = unique(c(as.character(edges$from), as.character(edges$to))) , 
+        value = runif(111)
+) 
+# Let's add a column with the group of each name. It will be useful later to color points
+vertices$group = edges$from[ match( vertices$name, edges$to ) ]
+
+#Let's add information concerning the label we are going to add: angle, horizontal adjustement and potential flip
+#calculate the ANGLE of the labels
+vertices$id=NA
+myleaves=which(is.na( match(vertices$name, edges$from) ))
+nleaves=length(myleaves)
+vertices$id[ myleaves ] = seq(1:nleaves)
+vertices$angle= 90 - 360 * vertices$id / nleaves
+
+# calculate the alignment of labels: right or left
+# If I am on the left part of the plot, my labels have currently an angle < -90
+vertices$hjust<-ifelse( vertices$angle < -90, 1, 0)
+
+# flip angle BY to make them readable
+vertices$angle<-ifelse(vertices$angle < -90, vertices$angle+180, vertices$angle)
+
+# 查看测试数据
+head(edges)
+head(vertices)
+
+# Create a graph object
+mygraph <- graph_from_data_frame( edges, vertices=vertices )
+
+# Make the plot
+ggraph(mygraph, layout = 'dendrogram', circular = TRUE) + 
+        geom_edge_diagonal(colour="grey") + #设置节点边的颜色
+        # 设置节点的标签，字体大小，文本注释信息
+        geom_node_text(aes(x = x*1.15, y=y*1.15, filter = leaf, label=name, angle = angle, hjust=hjust*0.4, colour=group), size=2.5, alpha=1) +
+        # 设置节点的大小，颜色和透明度
+        geom_node_point(aes(filter = leaf, x = x*1.07, y=y*1.07, colour=group, size=value, alpha=0.2)) +
+        # 设置颜色的画板
+        scale_colour_manual(values= rep( brewer.pal(9,"Paired") , 30)) +
+        # 设置节点大小的范围
+        scale_size_continuous( range = c(1,10) ) +
+        theme_void() +
+        theme(
+                legend.position="none",
+                plot.margin=unit(c(0,0,0,0),"cm"),
+        ) +
+        expand_limits(x = c(-1.3, 1.3), y = c(-1.3, 1.3))
+
+sessionInfo()
