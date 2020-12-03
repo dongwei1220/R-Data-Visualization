@@ -1,0 +1,72 @@
+# 35. 流动图绘制
+
+# 清除当前环境中的变量
+rm(list=ls())
+
+# 设置工作目录
+setwd("C:/Users/Dell/Desktop/R_Plots/35streamgraph/")
+
+# 安装并加载所需的R包
+#devtools::install_github("hrbrmstr/streamgraph")
+library(dplyr)
+library(streamgraph)
+
+# 构建示例数据
+data <- data.frame(
+  year=rep(seq(1990,2016) , each=10),
+  name=rep(letters[1:10] , 27),
+  value=sample( seq(0,1,0.0001) , 270)
+)
+# 查看示例数据
+head(data)
+
+# 使用streamgraph函数绘制流动图
+# 基础绘图，需要提供三列变量
+# 默认interactive=T，绘制可交互式图
+streamgraph(data, key="name", value="value", date="year")
+
+# 设置图片的高度和宽度，interactive = F绘制静态图
+pp <- streamgraph(data, key="name", value="value", date="year", 
+                  height="600px", width="1000px",interactive = F)
+pp
+
+# 指定offset参数设置纵坐标偏移模式，默认offset = "silhouette"
+streamgraph(data, key="name", value="value", date="year", 
+            offset = "silhouette", interactive = F)
+streamgraph(data, key="name", value="value", date="year", 
+            offset = "wiggle", interactive = F)
+streamgraph(data, key="name", value="value", date="year", 
+            offset = "expand", interactive = F)
+streamgraph(data, key="name", value="value", date="year", 
+            offset = "zero", interactive = F)
+
+# 指定interpolate参数设置绘图类型，默认interpolate = "cardinal"
+streamgraph(data, key="name", value="value", date="year", 
+            interpolate = "cardinal", interactive = F)
+streamgraph(data, key="name", value="value", date="year", 
+            interpolate = "linear", interactive = F)
+streamgraph(data, key="name", value="value", date="year", 
+            interpolate = "step", interactive = F)
+streamgraph(data, key="name", value="value", date="year", 
+            interpolate = "basis", interactive = F)
+streamgraph(data, key="name", value="value", date="year", 
+            interpolate = "monotone", interactive = F)
+
+# 更改绘图颜色
+# Graph 1: choose a RColorBrewer palette -> continuous
+p1 <- streamgraph(data, key="name", value="value", date="year") %>%
+  sg_fill_brewer("Blues")
+p1
+
+# Graph 2: choose a RColorBrewer palette -> categorical
+p2 <- streamgraph(data, key="name", value="value", date="year") %>%
+  sg_fill_brewer("Pastel1")
+p2
+
+# Graph 3: choose color manually with number, color name, rgb ...
+p3 <- streamgraph(data, key="name", value="value", date="year") %>%
+  sg_fill_manual(c(1:10))
+p3
+
+sessionInfo()
+
