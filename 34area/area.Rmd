@@ -1,0 +1,87 @@
+---
+title: "area"
+author: 'Davey1220: <1369852697@qq.com>'
+date: "2020/11/28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 34. 面积图绘制
+
+### 清除当前环境中的变量
+```{r}
+rm(list=ls())
+```
+
+### 设置工作目录
+```{r}
+setwd("C:/Users/Dell/Desktop/R_Plots/34area/")
+```
+
+## 使用ggplot2包绘制面积图
+```{r}
+# 加载所需的R包
+library(ggplot2)
+
+# 构建示例数据
+xValue <- 1:50
+yValue <- cumsum(rnorm(50))
+data <- data.frame(xValue,yValue)
+# 查看示例数据
+head(data)
+
+# 使用geom_area()函数绘制基础面积图
+ggplot(data, aes(x=xValue, y=yValue)) +
+  geom_area()
+
+# 添加填充颜色，边界线和点，更换主题
+ggplot(data, aes(x=xValue, y=yValue)) +
+  geom_area(fill="#69b3a2", alpha=0.6) +
+  geom_line(color="black", size=1.5) +
+  geom_point(size=3, color="red") +
+  theme_minimal() +
+  ggtitle("Evolution of something")
+
+# 绘制堆叠面积图
+library(dplyr)
+
+# 构建示例数据
+time <- as.numeric(rep(seq(1,7),each=7))  # x Axis
+value <- runif(49, 10, 100)               # y Axis
+group <- rep(LETTERS[1:7],times=7)        # group, one shape per group
+data <- data.frame(time, value, group)
+head(data)
+
+# 绘制基础堆叠面积图
+ggplot(data, aes(x=time, y=value, fill=group)) + 
+  geom_area()
+
+# 指定顺序进行堆叠
+data$group <- factor(data$group, levels=c("B", "A", "D", "E", "G", "F", "C"))
+
+# Plot again
+ggplot(data, aes(x=time, y=value, fill=group)) + 
+  geom_area(color="black",alpha=0.6,size=1) + theme_bw()
+
+# 更换填充色和主题
+library(viridis)
+
+ggplot(data, aes(x=time, y=value, fill=group)) + 
+  geom_area(alpha=0.6 , size=.5, colour="white") +
+  scale_fill_viridis(discrete = T) +
+  theme_minimal() + 
+  ggtitle("The race between ...")
+
+# 进行分面展示
+ggplot(data, aes(x=time, y=value, fill=group)) + 
+  geom_area(alpha=0.6 , size=.8, colour="black") +
+  scale_fill_viridis(option = "C",discrete = T) +
+  theme_classic() + facet_wrap(.~group,ncol = 3)
+```
+
+```{r}
+sessionInfo()
+```
